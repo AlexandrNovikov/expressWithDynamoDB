@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  node:
+    build:
+      context: .
+    container_name: node
+    env_file:
+      - .env
+    command: npm start
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
+  dynamodb:
+    image:  amazon/dynamodb-local
+    container_name: dynamodb
+    hostname: dynamodb
+    ports:
+      - 8000:8000
+  dynamodb_admin:
+    build:
+      context: lde/dynamo
+    container_name: dynamodb_admin
+    ports:
+      - 8001:8001

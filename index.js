@@ -9,6 +9,6 @@ const PORT = process.env.APP_PORT;
 createMoviesTable();
 
 app.use(express.json())
-app.use('/', indexRouter);
+app.use('/movie', indexRouter);
 
 app.listen(PORT, () => console.log(`app on the ${PORT} port`));

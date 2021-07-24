@@ -1,4 +1,4 @@
-import {dynamodb, ddbDocumentClient} from '../utils/conigureDynamo.js';
+import {ddbDocumentClient} from '../utils/conigureDynamo.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const paramsGlobal = {
@@ -11,21 +11,15 @@ export const addMovie = (req, res) => {
     if (!title || !rtScore) {
         res.status(400).send('Bad incoming data'); //TODO Better to use schema validation here
     }
-    const params = {...paramsGlobal, Item: {
-            id: { S: uuidv4() },
-            title: { S: title },
-            rtScore: { N: rtScore }
-        }}
+    const params = {...paramsGlobal, Item: {id: uuidv4(), title, rtScore}}
 
-    dynamodb.putItem(params, function(err) {
-        if (err) {
-            console.error("Unable to add movie", err);
-            res.send({status: 'Error'})
-        } else {
-            console.info(`Added ${title} with a Rotten Tomatoes Score of ${rtScore}%`);
-            res.send({status: 'Success'})
-        }
-    });
+    ddbDocumentClient.put(params).promise().then(() => {
+        console.info(`Added new item with data: ${JSON.stringify({title, rtScore})}`);
+        res.send({status: 'Success'})
+    }).catch(err => {
+        console.error(`Error on adding item: ${JSON.stringify(err)}`);
+        res.status(err.statusCode).send(err.code);
+    })
 }
 
 export const loadMovie = (req, res) => {
@@ -35,7 +29,7 @@ export const loadMovie = (req, res) => {
     ddbDocumentClient.get(params).promise().then(data => {
         res.send({status: "Ok", data})
     }).catch(err => {
-        console.log(err);
+        console.error(err);
         res.status(err.statusCode).send(err.code);
     })
 }
@@ -44,7 +38,50 @@ export const loadAllMovies = (req, res) => {
     ddbDocumentClient.scan(paramsGlobal).promise().then(data => {
         res.send({status: "Ok", data})
     }).catch(err => {
-        console.log(err);
+        console.error(err);
         res.status(err.statusCode).send(err.code);
     })
+}
+
+export const deleteMovie = (req, res) => {
+    const id = req.params.id;
+    const params = {...paramsGlobal, Key: { id }};
+    ddbDocumentClient.delete(params).promise().then((data) => {
+        res.send({status: "Ok", data})
+    }).catch(err => {
+        console.error(err);
+        res.status(err.statusCode).send(err.code);
+    })
+}
+
+export const updateMovie = (req, res) => {
+    const id = req.params.id;
+    const updateExpressions = getUpdateExpressions(req.body);
+    const params = {...paramsGlobal,
+        ...updateExpressions,
+        Key: { id },
+        ReturnValues: 'ALL_NEW'
+    };
+
+    ddbDocumentClient.update(params).promise().then(data => {
+        res.send({status: "Ok", data})
+    }).catch(err => {
+        console.error(err);
+        res.status(err.statusCode).send(err.code);
+    })
+}
+
+function getUpdateExpressions(data) {
+    const result = {
+        UpdateExpression: 'SET ',
+        ExpressionAttributeValues: {}
+    }
+    const keys = Object.keys(data);
+
+    keys.forEach((key, index) => {
+        result.UpdateExpression += `${key} = :${key}${index + 1 !== keys.length ? ',' : ''}`
+        result.ExpressionAttributeValues[`:${key}`] = data[key]
+    })
+
+    return result;
 }

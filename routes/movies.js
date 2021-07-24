@@ -7,6 +7,10 @@ router.post('/create', movieController.addMovie);
 
 router.get('/list', movieController.loadAllMovies)
 
-router.get('/movie/:id', movieController.loadMovie)
+router.get('/get/:id', movieController.loadMovie)
+
+router.delete('/delete/:id', movieController.deleteMovie)
+
+router.post('/update/:id', movieController.updateMovie)
 
 export default router;

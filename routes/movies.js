@@ -5,12 +5,12 @@ const router = express.Router();
 
 router.post('/create', movieController.addMovie);
 
-router.get('/list', movieController.loadAllMovies)
+router.get('/list', movieController.loadAllMovies);
 
-router.get('/get/:id', movieController.loadMovie)
+router.get('/get/:id', movieController.loadMovie);
 
-router.delete('/delete/:id', movieController.deleteMovie)
+router.delete('/delete/:id', movieController.deleteMovie);
 
-router.post('/update/:id', movieController.updateMovie)
+router.post('/update/:id', movieController.updateMovie);
 
 export default router;

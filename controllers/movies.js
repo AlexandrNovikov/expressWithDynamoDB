@@ -11,48 +11,48 @@ export const addMovie = (req, res) => {
     if (!title || !rtScore) {
         res.status(400).send('Bad incoming data'); //TODO Better to use schema validation here
     }
-    const params = {...paramsGlobal, Item: {id: uuidv4(), title, rtScore}}
+    const params = {...paramsGlobal, Item: {id: uuidv4(), title, rtScore}};
 
     ddbDocumentClient.put(params).promise().then(() => {
         console.info(`Added new item with data: ${JSON.stringify({title, rtScore})}`);
-        res.send({status: 'Success'})
+        res.send({status: 'Success'});
     }).catch(err => {
         console.error(`Error on adding item: ${JSON.stringify(err)}`);
         res.status(err.statusCode).send(err.code);
-    })
-}
+    });
+};
 
 export const loadMovie = (req, res) => {
     const id = req.params.id;
     const params = {...paramsGlobal, Key: { id }};
 
     ddbDocumentClient.get(params).promise().then(data => {
-        res.send({status: "Ok", data})
+        res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
         res.status(err.statusCode).send(err.code);
-    })
-}
+    });
+};
 
 export const loadAllMovies = (req, res) => {
     ddbDocumentClient.scan(paramsGlobal).promise().then(data => {
-        res.send({status: "Ok", data})
+        res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
         res.status(err.statusCode).send(err.code);
-    })
-}
+    });
+};
 
 export const deleteMovie = (req, res) => {
     const id = req.params.id;
     const params = {...paramsGlobal, Key: { id }};
     ddbDocumentClient.delete(params).promise().then((data) => {
-        res.send({status: "Ok", data})
+        res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
         res.status(err.statusCode).send(err.code);
-    })
-}
+    });
+};
 
 export const updateMovie = (req, res) => {
     const id = req.params.id;
@@ -64,24 +64,24 @@ export const updateMovie = (req, res) => {
     };
 
     ddbDocumentClient.update(params).promise().then(data => {
-        res.send({status: "Ok", data})
+        res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
         res.status(err.statusCode).send(err.code);
-    })
-}
+    });
+};
 
-function getUpdateExpressions(data) {
+function getUpdateExpressions(data) { //TODO will be useful globally so it's better to move it to utils folder
     const result = {
         UpdateExpression: 'SET ',
         ExpressionAttributeValues: {}
-    }
+    };
     const keys = Object.keys(data);
 
     keys.forEach((key, index) => {
-        result.UpdateExpression += `${key} = :${key}${index + 1 !== keys.length ? ',' : ''}`
-        result.ExpressionAttributeValues[`:${key}`] = data[key]
-    })
+        result.UpdateExpression += `${key} = :${key}${index + 1 !== keys.length ? ',' : ''}`;
+        result.ExpressionAttributeValues[`:${key}`] = data[key];
+    });
 
     return result;
 }

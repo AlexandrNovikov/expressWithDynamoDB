@@ -6,7 +6,7 @@ services:
     container_name: node
     env_file:
       - .env
-    command: npm start
+    command: sls offline --noPrependStageInUrl --printOutput
     volumes:
       - ./:/app
     ports:

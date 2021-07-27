@@ -21,4 +21,4 @@ export default () => {
             console.log("Created table.", JSON.stringify(data, null, 2));
         }
     });
-}
+};

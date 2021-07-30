@@ -1,7 +1,6 @@
 service: express-with-dynamo
 plugins:
   - serverless-bundle
-  - serverless-dotenv-plugin
   - serverless-offline
 provider:
   name: aws
@@ -9,6 +8,19 @@ provider:
   stage: stage
   runtime: nodejs14.x
   memorySize: 128
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": [ "MoviesDynamoDBTable", "Arn" ] }
+  environment:
+    MOVIES_TABLE: ${self:custom.tableName}
 functions:
   express-with-dynamo:
     handler: index.handler
@@ -20,3 +32,23 @@ functions:
 custom:
   serverless-offline:
     host: 0.0.0.0
+  tableName: 'Movies'
+  dynamodb:
+    start:
+      migrate: true
+
+resources:
+  Resources:
+    MoviesDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}

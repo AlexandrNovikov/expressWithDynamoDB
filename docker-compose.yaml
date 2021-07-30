@@ -4,9 +4,9 @@ services:
     build:
       context: .
     container_name: node
-    env_file:
-      - .env
-    command: sls offline --noPrependStageInUrl --printOutput
+    command: sls offline start --noPrependStageInUrl --printOutput
+    environment:
+      IS_OFFLINE: true
     volumes:
       - ./:/app
     ports:
@@ -15,7 +15,7 @@ services:
     build:
       context: ./infra/dynamoDb
     container_name: dynamodb
-    hostname: dynamodb
+    hostname: localhost
     ports:
       - 8000:8000
     command: -jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data/
@@ -27,6 +27,5 @@ services:
     container_name: dynamodb_admin
     ports:
       - 8001:8001
-
 volumes:
   dynamodb_data:

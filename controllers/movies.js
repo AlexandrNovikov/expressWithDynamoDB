@@ -1,9 +1,11 @@
-import {ddbDocumentClient} from '../utils/conigureDynamo.js';
+import conigureDynamo from '../utils/conigureDynamo.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const paramsGlobal = {
     TableName: 'Movies',
 };
+
+const dynamoDb = conigureDynamo();
 
 export const addMovie = (req, res) => {
     const {title, rtScore} = req.body;
@@ -13,7 +15,7 @@ export const addMovie = (req, res) => {
     }
     const params = {...paramsGlobal, Item: {id: uuidv4(), title, rtScore}};
 
-    ddbDocumentClient.put(params).promise().then(() => {
+    dynamoDb.put(params).promise().then(() => {
         console.info(`Added new item with data: ${JSON.stringify({title, rtScore})}`);
         res.send({status: 'Success'});
     }).catch(err => {
@@ -26,7 +28,7 @@ export const loadMovie = (req, res) => {
     const id = req.params.id;
     const params = {...paramsGlobal, Key: { id }};
 
-    ddbDocumentClient.get(params).promise().then(data => {
+    dynamoDb.get(params).promise().then(data => {
         res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
@@ -35,7 +37,7 @@ export const loadMovie = (req, res) => {
 };
 
 export const loadAllMovies = (req, res) => {
-    ddbDocumentClient.scan(paramsGlobal).promise().then(data => {
+    dynamoDb.scan(paramsGlobal).promise().then(data => {
         res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
@@ -46,7 +48,7 @@ export const loadAllMovies = (req, res) => {
 export const deleteMovie = (req, res) => {
     const id = req.params.id;
     const params = {...paramsGlobal, Key: { id }};
-    ddbDocumentClient.delete(params).promise().then((data) => {
+    dynamoDb.delete(params).promise().then((data) => {
         res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);
@@ -63,7 +65,7 @@ export const updateMovie = (req, res) => {
         ReturnValues: 'ALL_NEW'
     };
 
-    ddbDocumentClient.update(params).promise().then(data => {
+    dynamoDb.update(params).promise().then(data => {
         res.send({status: "Ok", data});
     }).catch(err => {
         console.error(err);

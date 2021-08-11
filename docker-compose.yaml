@@ -6,7 +6,7 @@ services:
     container_name: node
     command: sls offline start --noPrependStageInUrl --printOutput
     environment:
-      IS_OFFLINE: true
+      ENV: dev
     volumes:
       - ./:/app
     ports:

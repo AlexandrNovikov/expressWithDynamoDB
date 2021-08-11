@@ -1,8 +1,8 @@
 import AWS from 'aws-sdk';
 
-const IS_OFFLINE = process.env.IS_OFFLINE;
+const ENV = process.env.ENV;
 export default () => {
-    if (IS_OFFLINE === 'true') {
+    if (ENV === 'dev') {
         return new AWS.DynamoDB.DocumentClient({
             region: 'localhost',
             accessKeyId: 'accessKeyId',

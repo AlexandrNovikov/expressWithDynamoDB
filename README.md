@@ -13,3 +13,7 @@
 - App uses docker & docker-compose
     - Backend: Express.js + ServerlessFramework
     - DB: Dynamo
+  
+## Local env:
+- App is running on 3000 port by default - http://0.0.0.0:3000
+- Dynamo DB admin is running on 8001 port by default - http://localhost:8001/
